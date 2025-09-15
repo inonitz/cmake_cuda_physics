@@ -1,12 +1,11 @@
-[submodule "nsys_easy"]
-	path = dependencies/nsys_easy
-	url = https://github.com/harrism/nsys_easy
 
 # [submodule "blt"]
 # 	path = dependencies/blt
 # 	url = https://github.com/LLNL/blt.git
 
-
-
-
-
+[submodule "dependencies/nsys_easy"]
+	path = dependencies/nsys_easy
+	url = https://github.com/harrism/nsys_easy
+[submodule "dependencies/SDL"]
+	path = dependencies/SDL
+	url = https://github.com/libsdl-org/SDL.git
