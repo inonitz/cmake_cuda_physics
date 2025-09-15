@@ -118,7 +118,7 @@
         // "-pretty",
         // "--log=verbose",
     ],
-    "clang-format.executable": "${env:VSCodeClangFormatAbsPath}",
+    // "clang-format.executable": "${env:VSCodeClangFormatAbsPath}",
     "lldb.displayFormat": "auto",
     "lldb.showDisassembly": "auto",
     "lldb.dereferencePointers": false,

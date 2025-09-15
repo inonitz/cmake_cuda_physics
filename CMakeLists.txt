@@ -5,6 +5,46 @@ project(
     DESCRIPTION "Testing CUDA with CMAKE (Executable)"
     LANGUAGES ASM C CXX CUDA
 )
+set(EXECUTABLE_NAME ${PROJECT_NAME})
+
+
+# Taken from: https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
+function(UPDATE_SUBMODULES_ON_CMAKE_CONFIGURE SUBMODULE_CMAKE_TXT_PATH)
+    find_package(Git QUIET)
+    if(GIT_FOUND AND EXISTS "${PROJECT_SOURCE_DIR}/.git")
+        # Update submodules as needed
+        option(GIT_SUBMODULE "Check submodules during build" ON)
+        if(GIT_SUBMODULE)
+            message(STATUS "Submodule update")
+            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+                            WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+                            RESULT_VARIABLE GIT_SUBMOD_RESULT
+            )
+            if(NOT GIT_SUBMOD_RESULT EQUAL "0")
+                message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+            endif()
+        endif()
+    endif()
+
+    if(NOT EXISTS ${PROJECT_SOURCE_DIR}/${SUBMODULE_CMAKE_TXT_PATH})
+        message(${PROJECT_SOURCE_DIR}/${SUBMODULE_CMAKE_TXT_PATH})
+        message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
+    endif()
+endfunction()
+
+
+update_submodules_on_cmake_configure("dependencies/SDL/CMakeLists.txt")
+
+
+# set the output directory for built objects.
+# This makes sure that the dynamic library goes into the build directory automatically.
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+# prevent installing to system directories. 
+set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
+
+
 
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
@@ -38,3 +78,5 @@ endif()
 
 
 add_subdirectory(projects/program)
+add_subdirectory(projects/util2)
+add_subdirectory(dependencies/SDL)

@@ -6,3 +6,12 @@ https://gist.github.com/Strus/042a92a00070a943053006bf46912ae9
 https://stackoverflow.com/questions/68223398/how-can-i-get-cmake-to-automatically-detect-the-value-for-cuda-architectures
 https://docs.nvidia.com/cuda/cuda-compiler-driver-nvcc/#supported-host-compilers
 https://llnl-blt.readthedocs.io/en/develop/tutorial/index.html
+
+
+
+Actual TODO:
+* README
+* ImGui
+* GPU Side Compute
+* 3D Plane
+* 3D Visualization

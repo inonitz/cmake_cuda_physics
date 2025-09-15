@@ -4,7 +4,7 @@
 CompileFlags:
   BuiltinHeaders: QueryDriver
   CompilationDatabase: "build/compile_commands.json"
-
+  Remove: [ "-forward-unknown-to-host-compiler", "-arch=native" ]
 
 
 Completion:

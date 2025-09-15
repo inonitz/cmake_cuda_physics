@@ -16,6 +16,7 @@ int test_cuda(void) {
 
 	// Allocate Unified Memory – accessible from CPU or GPU
 	cudaMallocManaged(&x, N * sizeof(float));
+
 	cudaMallocManaged(&y, N * sizeof(float));
 
 	// initialize x and y arrays on the host
