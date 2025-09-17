@@ -22,7 +22,8 @@ Direct calculation of the probability density of a Hydrogen Atoms' Wave function
 Currently there is only a CPU-side calculation, with GPGPU-Oriented approaches coming soon :)
 
 ### Pretty Pictures
-[Hydrogen Electron cloud for quantum numbers N, L, M = 2, 1, 1](https://github.com/inonitz/cmake_cuda_physics/tree/main/electron_prob_cloud_nlm_210_inferno_colourmap.png)
+#### Hydrogen Electron cloud for quantum numbers N, L, M = 2, 1, 1
+![](electron_prob_cloud_nlm_210_inferno_colourmap.png?raw=true)
 <br></br>
 
 ### Project Structure
