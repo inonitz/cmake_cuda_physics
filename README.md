@@ -90,8 +90,8 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 <!-- References -->
 ## References
 
-* [Tutorial for Displaying Electron Probability Cloud in Hydrogen Atom](medium.com/@apsandiwan93/electron-probability-cloud-in-hydrogen-atom-c8702bd24d01)
-* [Modern CMake](cliutils.gitlab.io/modern-cmake/README.html)
+* [Tutorial for Displaying Electron Probability Cloud in Hydrogen Atom](https://medium.com/@apsandiwan93/electron-probability-cloud-in-hydrogen-atom-c8702bd24d01)
+* [Modern CMake](https://cliutils.gitlab.io/modern-cmake/README.html)
 * [Color Advice](https://www.kennethmoreland.com/color-advice)
 * [Best-README](https://github.com/othneildrew/Best-README-Template)
 

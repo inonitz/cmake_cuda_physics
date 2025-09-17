@@ -8,7 +8,6 @@
 #include <vector>
 #include <cmath>
 #include <limits>
-#include <hello.hpp>
 #include <hellocuda.hpp>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
@@ -42,10 +41,10 @@ static constexpr u16 k_windowHeight    = 1080;
 static constexpr u16 k_pixelsPerSecMin = 30;
 static constexpr u16 k_pixelsPerSecMax = 60;
 static constexpr f64 k_a0              = 1;
-static constexpr u32 k_quantumNumN 	   = 2;
-static constexpr u32 k_quantumNumL 	   = 1;
-static constexpr i32 k_quantumNumM 	   = 0;
-static constexpr f64 k_radius          = 10;
+static constexpr u32 k_quantumNumN 	   = 5;
+static constexpr u32 k_quantumNumL 	   = 3;
+static constexpr i32 k_quantumNumM 	   = -1;
+static constexpr f64 k_radius          = 50;
 static constexpr u64 k_sampleCountX    = 1000;
 static constexpr u64 k_sampleCountY    = 1000;
 
