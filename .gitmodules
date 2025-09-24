@@ -9,3 +9,7 @@
 [submodule "dependencies/SDL"]
 	path = dependencies/SDL
 	url = https://github.com/libsdl-org/SDL.git
+
+[submodule "dependencies/SDL_shadercross"]
+	path = dependencies/SDL_shadercross
+	url = https://github.com/libsdl-org/SDL_shadercross
