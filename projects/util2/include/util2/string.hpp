@@ -72,7 +72,7 @@ template<
 	typename T
 > constexpr T round2(T v)
 {
-	static_assert(util2::type_trait::__is_integral_type<T>::value, 
+	static_assert(util2::type_trait::is_integral_type<T>::value, 
 		"Value must be an Integral Type! (Value v belongs to group N [0 -> +inf]\n"
 	);
 	--v;
@@ -89,7 +89,7 @@ template<
 	typename T
 > constexpr T roundN(T powof2, T v)
 {
-	static_assert(type_trait::__is_integral_type<T>::value, 
+	static_assert(type_trait::is_integral_type<T>::value, 
 		"Value must be an Integral Type! (Value v belongs to group N [0 -> +inf]\n"
 	);
 

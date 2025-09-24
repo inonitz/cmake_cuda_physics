@@ -19,7 +19,7 @@ void util2_ifcrash2(
         return;
     }
 
-    util2_fprintf(stderr, "\n[IFCRASH2_%s] %s:" PRIu32, ifcrash_type_str, file_macro, line_macro);
+    util2_fprintf(stderr, "\n[IFCRASH2_%s] %s:%" PRIu32, ifcrash_type_str, file_macro, line_macro);
     if(!formatStrIsActuallyEmpty) {
         util2_fprintf(stderr, "\n[IFCRASH2_%s]", ifcrash_type_str);
 

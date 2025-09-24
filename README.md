@@ -62,7 +62,7 @@ cd cmake_cuda_physics
 ### Build Process
 
 ```sh
-./build.sh debug/release/release_dbginfo static/shared clean/noclean
+./build.sh debug/release/release_dbginfo static/shared clean/noclean run/norun
 ```
 
 <br></br>
@@ -91,6 +91,11 @@ Distributed under the MIT License. See `LICENSE` file for more information.
 ## References
 
 * [Tutorial for Displaying Electron Probability Cloud in Hydrogen Atom](https://medium.com/@apsandiwan93/electron-probability-cloud-in-hydrogen-atom-c8702bd24d01)
+* [Wolfram Alpha - Associated Laguerre Polynomial](https://mathworld.wolfram.com/AssociatedLaguerrePolynomial.html)
+* [Spherical Harmonics - Orthogonality and normalization](https://en.wikipedia.org/wiki/Spherical_harmonics#Orthogonality_and_normalization)
+* [CPPReference - Associated Laguerre Polynomials](https://en.cppreference.com/w/cpp/numeric/special_functions/assoc_laguerre)
+* [CPPReference - Associated Legendre Polynomials](https://en.cppreference.com/w/cpp/numeric/special_functions/assoc_legendre)
+* [Scipy - lpmv](https://docs.scipy.org/doc/scipy/reference/generated/scipy.special.lpmv.html)
 * [Modern CMake](https://cliutils.gitlab.io/modern-cmake/README.html)
 * [Color Advice](https://www.kennethmoreland.com/color-advice)
 * [Best-README](https://github.com/othneildrew/Best-README-Template)

@@ -57,14 +57,6 @@ set(SOURCES
 if(NOT DEFINED CMAKE_BUILD_TYPE)
     # set(cmake_build_type_undefined 1)
     set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "CMake build type" FORCE)
-    endif()
-
-# The minimum C/C++ versions required for the library
-if(NOT DEFINED CMAKE_C_STANDARD)
-    set(CMAKE_C_STANDARD 11)
-endif()
-if(NOT DEFINED CMAKE_CXX_STANDARD)
-    set(CMAKE_CXX_STANDARD 17)
 endif()
 
 
@@ -75,6 +67,11 @@ else()
     add_library(util2 STATIC ${SOURCES})
     target_compile_definitions(util2 PUBLIC UTIL2_STATIC_DEFINE)
 endif()
+
+
+# The minimum C/C++ versions required for the library
+target_compile_features(util2 PUBLIC cxx_std_17)
+target_compile_features(util2 PUBLIC c_std_11)
 
 
 target_include_directories(util2 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")

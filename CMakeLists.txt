@@ -30,16 +30,23 @@ function(UPDATE_SUBMODULES_ON_CMAKE_CONFIGURE SUBMODULE_CMAKE_TXT_PATH)
         message(${PROJECT_SOURCE_DIR}/${SUBMODULE_CMAKE_TXT_PATH})
         message(FATAL_ERROR "The submodules were not downloaded! GIT_SUBMODULE was turned off or failed. Please update submodules and try again.")
     endif()
-endfunction()
+endfunction() 
 
 
 update_submodules_on_cmake_configure("dependencies/SDL/CMakeLists.txt")
 
 
-# set the output directory for built objects.
-# This makes sure that the dynamic library goes into the build directory automatically.
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+
+# Using <config> will generate in a multi-generator-dependant way, which is undesirable
+# I'd rather choose it myself using a script.
+# set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIG>")
+
+# makes sure all dynamic/static/executable objects sit in the same place
+set(CMAKE_CUSTOM_BUILD_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CUSTOM_BUILD_OUTPUT_DIRECTORY})
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CUSTOM_BUILD_OUTPUT_DIRECTORY})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CUSTOM_BUILD_OUTPUT_DIRECTORY})
 
 # prevent installing to system directories. 
 set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
@@ -68,6 +75,7 @@ if(NOT DEFINED CMAKE_PROJECT_DIRECTORY)
 endif()
 
 
+
 find_program(CCACHE_PROGRAM ccache)
 if(CCACHE_PROGRAM)
     set(CMAKE_ASM_COMPILER_LAUNCHER  "${CCACHE_PROGRAM}")
@@ -77,6 +85,13 @@ if(CCACHE_PROGRAM)
 endif()
 
 
+OPTION(MEASURE_PERFORMANCE_TIMEOUT 
+    "Timeout the program after a certain amount of iterations" 
+    ON
+)
+
+find_package(Vulkan REQUIRED)
 add_subdirectory(projects/program)
 add_subdirectory(projects/util2)
 add_subdirectory(dependencies/SDL)
+add_subdirectory(dependencies/SDL_shadercross)

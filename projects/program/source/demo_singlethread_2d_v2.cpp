@@ -1,14 +1,11 @@
-#include <algorithm>
+#include "SDL3/SDL_init.h"
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
 #include <colourmap_buf.hpp>
-#include <util2/C/marker4.h>
+#include  <util2/C/ifcrash2.h>
 #include <util2/C/print.h>
-#include <util2/vec2.hpp>
-#include <util2/time.hpp>
-#include <vector>
 #include <cmath>
-#include <limits>
-#include <hellocuda.hpp>
+#include <vector>
+#include <algorithm>
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_main.h>
 
@@ -36,6 +33,7 @@ static SDL_GPUDevice* g_gpu = nullptr;
 static u64           g_lasttime        = 0;
 static u64           g_currtime        = 0;
 static u64           g_timeDelta       = 0;
+static u64 			 g_frameCount 	   = 0;
 static constexpr u16 k_windowWidth     = 1920;
 static constexpr u16 k_windowHeight    = 1080;
 static constexpr u16 k_pixelsPerSecMin = 30;
@@ -127,6 +125,7 @@ void generateRadiiAndSphericalCoordinatesBuffer(
 	std::vector<f64>& 		planePolar
 ) {
 	ifcrash(planeX.size() != planeZ.size());
+
 
 	planeRadii.resize(planeX.size());
 	planePolar.resize(planeX.size());
@@ -335,8 +334,6 @@ void writeColouredPointCommands(
 
 
 auto SDL_AppInit(void** appstate, int argc, char* argv[]) -> SDL_AppResult {
-	constexpr i32 k_maximumRandomStates = 0x7fffffff;
-	u64 randState = 0;
 	std::array<f64, 2> probDensityMinMax{};
 	SDL_SetAppMetadata("RenderTextureToViewport", "1.0", "");
 
@@ -350,41 +347,29 @@ auto SDL_AppInit(void** appstate, int argc, char* argv[]) -> SDL_AppResult {
 	/* set up the data for a bunch of points. */
 	g_pointbuf.resize(k_sampleCountX * k_sampleCountY);
 	g_colourbuf.resize(k_sampleCountX * k_sampleCountY);
-
 	for(u32 j = 0; j < k_sampleCountY; ++j) {
 		for(u32 i = 0; i < k_sampleCountX; ++i) {
 			g_pointbuf[j * k_sampleCountY + i] = SDL_FPoint{
 				__scast(f32, i),
 				__scast(f32, j)
 			};
-
-			SDL_rand_r(&randState, k_maximumRandomStates);
-			g_colourbuf[j * k_sampleCountY + i] = colour_rgba{
-				__scast(u8, (( randState >> 0 ) & 0xFF) ),
-				__scast(u8, (( randState >> 8 ) & 0xFF) ),
-				__scast(u8, (( randState >> 16) & 0xFF) ),
-				__scast(u8, (( randState >> 24) & 0xFF) )
-			};
 		}
 	}
 
 
 	/* Prepare the data */	
-	mark();
 	generateLinearSpace(-k_radius, k_radius, k_sampleCountX, xrange);
 	generateLinearSpace(-k_radius, k_radius, k_sampleCountY, zrange);
 	generateMeshgrid(xrange, zrange, 
 		xmeshgrid, 
 		zmeshgrid
 	);	
-	mark();
 	generateRadiiAndSphericalCoordinatesBuffer(
 		xmeshgrid,
 		zmeshgrid,
 		radiusPlane,
 		thetaPlane
 	);
-	mark();
 	/* actually calculate psi**2 */
 	/* PROBLEM HERE */
 	calculateProbabilityDensity(
@@ -393,7 +378,7 @@ auto SDL_AppInit(void** appstate, int argc, char* argv[]) -> SDL_AppResult {
 		psi
 	);
 	findRange(psi, probDensityMinMax);
-	mark();
+	
 
 	// util2_printf("\n\npsi value range [%f, %u]\n\n", probDensityMinMax[0], probDensityMinMax[1]);
 	// util2_printf("\n\npsi[i] -> Colourbuf[i]\n\n");
@@ -416,9 +401,8 @@ auto SDL_AppInit(void** appstate, int argc, char* argv[]) -> SDL_AppResult {
 		// );
 		// if(i % 1000)
 		// 	util2_printf("\n");
-
 	}
-	mark();
+	
 
 	g_lasttime = SDL_GetTicks();
 
@@ -430,6 +414,12 @@ auto SDL_AppEvent(void* appstate, SDL_Event* event) -> SDL_AppResult {
 	if (event->type == SDL_EVENT_QUIT) {
 		return SDL_APP_SUCCESS;
 	}
+    // close the window on request
+    if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
+        return SDL_APP_SUCCESS;
+    }
+
+
 	return SDL_APP_CONTINUE;
 }
 
@@ -437,15 +427,22 @@ auto SDL_AppIterate(void* appstate) -> SDL_AppResult {
 	g_currtime = SDL_GetTicks();
 	g_timeDelta = (g_currtime - g_lasttime);
 	g_lasttime = g_currtime;
+	++g_frameCount;
 
 
 	SDL_SetRenderDrawColor(g_renderer, 0, 0, 0, SDL_ALPHA_OPAQUE);
 	SDL_RenderClear(g_renderer);
-	// SDL_SetRenderDrawColor(g_renderer, 255, 255, 255, SDL_ALPHA_OPAQUE);
-	// SDL_RenderPoints(g_renderer, g_pointbuf.data(), g_pointbuf.size());
 	writeColouredPointCommands(g_colourbuf, g_pointbuf);
 
 	SDL_RenderPresent(g_renderer);
+	
+	
+#if defined(MEASURE_PERFORMANCE_TIMEOUT_FLAG) && (MEASURE_PERFORMANCE_TIMEOUT_FLAG == 1)
+	if(g_frameCount > 25ull) {
+		return SDL_APP_SUCCESS;
+	}
+	// util2_printf("frameCount is %u\n", g_frameCount);
+#endif
 	return SDL_APP_CONTINUE;
 }
 

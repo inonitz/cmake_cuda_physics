@@ -10,8 +10,15 @@ https://llnl-blt.readthedocs.io/en/develop/tutorial/index.html
 
 
 Actual TODO:
-* README
 * ImGui
 * GPU Side Compute
 * 3D Plane
 * 3D Visualization
+
+
+3D:
+	FPS Camera
+	Infinite XZ Plane
+	Draw 3D Buffer of Vertex points, 
+	Draw 3D Buffer of Vertex Colours
+	-> Draw Single Point with position & colour in 3D of size S (Sphere)

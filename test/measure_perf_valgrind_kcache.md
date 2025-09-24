@@ -1,1 +1,0 @@
-cd /home/mintgs/workspaces/cmake_cuda_physics/build/Debug && valgrind --tool=callgrind ./testing_cuda_with_cmake
