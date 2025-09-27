@@ -26,3 +26,4 @@ Makefile
 
 # misc
 imgui.ini
+*.txt

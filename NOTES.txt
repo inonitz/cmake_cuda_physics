@@ -22,3 +22,34 @@ Actual TODO:
 	Draw 3D Buffer of Vertex points, 
 	Draw 3D Buffer of Vertex Colours
 	-> Draw Single Point with position & colour in 3D of size S (Sphere)
+
+
+
+Windows Problems:
+1. The imported target "spirv-cross-c-shared" references the file
+    "C:/VulkanSDK/1.4.321.0/Lib/lib/spirv-cross-c-shared.lib"
+	but this file does not exist.
+
+	From Debugging ->
+
+	A. SDL_shadercross tries to import spirv_cross_c/spirv_cross_core as a dependency inside external/* (git submodule)
+	B. Spits out "not found" for a .cmake file inside the vulkan-sdk
+	C. I look for the problem, and find the following issue:
+		-> https://vulkan.lunarg.com/issue/view/66fef9a807baa3c85a20d08a
+
+	D. even though I specify find_package(Vulkan REQUIRED),
+		it still doesn't find the .cmake files inside ${VULKAN_SDK_PATH}\Lib\cmake
+
+	E. So, I do it manually, specifying CMAKE_PREFIX_PATH=${VULKAN_SDK_PATH}\Lib\cmake,
+		so that it can find the cmake config files
+	F. I clean build again, but then it complains about incorrect paths,
+		Specifically, it adds a "\lib" postfix:
+		-> correct  : "C:/VulkanSDK/1.4.321.0/Lib/spirv-cross-c.lib"
+		-> incorrect: "C:/VulkanSDK/1.4.321.0/Lib/lib/spirv-cross-c.lib"
+	G. looking at "spirv_cross_cConfig-release" that is being imported,
+		its seems this is hardcoded.
+		I don't know why *YET* it uses a release version on debug, but that may be irrelevant
+	H. investigate later
+
+	I. cmake file "spirv_cross_cConfig.cmake that I modified for debugging:
+		-> spirv_cross_cConfig.cmake.debugging_attempt

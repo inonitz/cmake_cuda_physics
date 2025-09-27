@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-PROJECT_NAME=testing_cuda_with_cmake
+PROJECT_NAME=hydrogen_atom_electron_cloud
 CMAKE_ARGLIST="\
     -DCMAKE_C_COMPILER=clang-20 \
     -DCMAKE_CXX_COMPILER=clang++-20 \

@@ -1,11 +1,16 @@
 cmake_minimum_required (VERSION 3.15..4.0)
 project(
-    testing_cuda_with_cmake
+    hydrogen_atom_electron_cloud
     VERSION 0.00.1
-    DESCRIPTION "Testing CUDA with CMAKE (Executable)"
-    LANGUAGES ASM C CXX CUDA
+    DESCRIPTION "Electron Cloud - Hydrogen Atom (3D) (Executable)"
+    LANGUAGES ASM C CXX
 )
 set(EXECUTABLE_NAME ${PROJECT_NAME})
+
+
+find_package(Vulkan REQUIRED)
+# find_package(spirv_cross_c REQUIRED)
+
 
 
 # Taken from: https://cliutils.gitlab.io/modern-cmake/chapters/projects/submodule.html
@@ -34,6 +39,7 @@ endfunction()
 
 
 update_submodules_on_cmake_configure("dependencies/SDL/CMakeLists.txt")
+update_submodules_on_cmake_configure("dependencies/SDL_shadercross/CMakeLists.txt")
 
 
 
@@ -57,7 +63,7 @@ set(CMAKE_INSTALL_PREFIX "${CMAKE_BINARY_DIR}" CACHE INTERNAL "")
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(CMAKE_C_STANDARD_REQUIRED     ON)
 set(CMAKE_CXX_STANDARD_REQUIRED   ON)
-set(CMAKE_CUDA_STANDARD_REQUIRED  ON)
+# set(CMAKE_CUDA_STANDARD_REQUIRED  ON)
 set(CMAKE_CXX_EXTENSIONS          OFF)
 if(NOT DEFINED CMAKE_C_STANDARD)
     set(CMAKE_C_STANDARD 11)
@@ -65,9 +71,9 @@ endif()
 if(NOT DEFINED CMAKE_CXX_STANDARD)
     set(CMAKE_CXX_STANDARD 17)
 endif()
-if(NOT DEFINED CMAKE_CUDA_STANDARD)
-    set(CMAKE_CUDA_STANDARD 17)
-endif()
+# if(NOT DEFINED CMAKE_CUDA_STANDARD)
+#     set(CMAKE_CUDA_STANDARD 17)
+# endif()
 
 
 if(NOT DEFINED CMAKE_PROJECT_DIRECTORY)
@@ -81,7 +87,7 @@ if(CCACHE_PROGRAM)
     set(CMAKE_ASM_COMPILER_LAUNCHER  "${CCACHE_PROGRAM}")
     set(CMAKE_C_COMPILER_LAUNCHER    "${CCACHE_PROGRAM}")
     set(CMAKE_CXX_COMPILER_LAUNCHER  "${CCACHE_PROGRAM}")
-    set(CMAKE_CUDA_COMPILER_LAUNCHER "${CCACHE_PROGRAM}") # CMake 3.9+
+    # set(CMAKE_CUDA_COMPILER_LAUNCHER "${CCACHE_PROGRAM}") # CMake 3.9+
 endif()
 
 
@@ -90,7 +96,7 @@ OPTION(MEASURE_PERFORMANCE_TIMEOUT
     ON
 )
 
-find_package(Vulkan REQUIRED)
+
 add_subdirectory(projects/program)
 add_subdirectory(projects/util2)
 add_subdirectory(dependencies/SDL)

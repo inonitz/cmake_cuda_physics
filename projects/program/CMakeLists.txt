@@ -58,11 +58,11 @@ else()
     target_compile_definitions(${PROJECT_NAME} PRIVATE MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS=0)
 endif()
 
-set_target_properties(
-    ${PROJECT_NAME} 
-    PROPERTIES 
-    CUDA_ARCHITECTURES native
-)
+# set_target_properties(
+#     ${PROJECT_NAME} 
+#     PROPERTIES 
+#     CUDA_ARCHITECTURES native
+# )
 
 
 compile_and_copy_shaders_to_binary_directory(${CMAKE_CURRENT_SOURCE_DIR}/source/scenetest/shaders)
