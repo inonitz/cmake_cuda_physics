@@ -2,11 +2,15 @@
 #include <vector>
 #include <util2/vec2.hpp>
 #include <SDL3_shadercross/SDL_shadercross.h>
-#include "SDL3/SDL_gpu.h"
-#include "SDL3/SDL_init.h"
-#include "SDL3/SDL_pixels.h"
 #include "scenetest/sphere.hpp"
+#include "scenetest/camera.hpp"
 #include "check.hpp"
+
+
+
+
+
+
 
 
 auto AppContext::create(
@@ -27,11 +31,11 @@ auto AppContext::create(
 	SDLCHECK(status      != true,    "Failure to claim current window for Graphics Device\n");
 
 
-
+	m_io.create();
 	m_lasttime = SDL_GetTicks();
-	m_shaderPaths[0] = "shaders/vert.spv";
-	m_shaderPaths[1] = "shaders/frag.spv";
-	m_shaderPaths[2] = "shaders/comp.spv";
+	m_shaderPaths[0] = "shaders/bin/vert.spv";
+	m_shaderPaths[1] = "shaders/bin/frag.spv";
+	m_shaderPaths[2] = "shaders/bin/comp.spv";
 
 	prepareVertexBuffers();
 	createGraphicsPipeline();
@@ -52,11 +56,30 @@ void AppContext::destroy()
 	SDL_ReleaseGPUBuffer(m_gpudevice, m_vertexBuffer);
 	SDL_DestroyGPUDevice(m_gpudevice);
 	SDL_DestroyWindow(m_window);
+	m_io.destroy();
     return;
 }
 
 
-auto AppContext::update() -> SDL_AppResult
+auto AppContext::inputUpdate(void* appstate, SDL_Event* event) -> SDL_AppResult {
+	auto status = SDL_APP_CONTINUE;
+
+	switch(event->type) {
+		case SDL_EVENT_QUIT:
+		case SDL_EVENT_WINDOW_CLOSE_REQUESTED:
+			status = SDL_APP_SUCCESS;
+		break;
+		default:
+			m_io.onUpdate(appstate, *event);
+			m_camera->update(__scast(f32, m_currtime));
+			status = SDL_APP_CONTINUE;
+		break;
+	}
+	return status;
+}
+
+
+auto AppContext::renderUpdate() -> SDL_AppResult
 {
 	constexpr SDL_FColor clearScreenColour{
 		0.74281051f, 0.6502934f, 0.97186973f, 1.0f
@@ -75,8 +98,8 @@ auto AppContext::update() -> SDL_AppResult
 			m_cmdbuf,
 			m_window,
 			&m_swapchainTexture,
-			&m_swapchainWidth,
-			&m_swapchainHeight
+			&m_swapchainSize[0],
+			&m_swapchainSize[1]
 		),
 		"Failure to acquire current swapchain-texture\n"
 	);
@@ -90,9 +113,16 @@ auto AppContext::update() -> SDL_AppResult
 		colorTargetInfo.store_op 	= SDL_GPU_STOREOP_STORE;
 		
 		m_renderPass = SDL_BeginGPURenderPass(m_cmdbuf, &colorTargetInfo, 1, nullptr);
+		
 		SDL_BindGPUGraphicsPipeline(m_renderPass, m_gfxpipeline);
 		SDL_BindGPUVertexBuffers(m_renderPass, 0, &bufferBinding, 1);
+
+
+		SDL_PushGPUVertexUniformData(m_cmdbuf, 3, &m_camera->getProjection(), sizeof(util2::math::mat4f));
+		SDL_PushGPUVertexUniformData(m_cmdbuf, 4, &m_camera->getView(), 	  sizeof(util2::math::mat4f));
+		// SDL_PushGPUVertexUniformData(m_cmdbuf, 1, &m_camera->getView(), 	  sizeof(util2::math::mat4f));
 		SDL_DrawGPUPrimitives(m_renderPass, m_spherePrimitiveVertices.size(), 1, 0, 0);
+		
 		SDL_EndGPURenderPass(m_renderPass);
 	}
 
@@ -180,6 +210,9 @@ void AppContext::createGraphicsPipeline()
 	
 	SDL_GPUGraphicsPipelineCreateInfo pipelineCreateInfo{};
 
+	shaderc::CompileOptions vertexShaderCompileOptions;
+	shaderc::CompileOptions fragmentShaderCompileOptions;
+
 
 	vertexBufferDescriptions[0] = {
 		.slot 			    = 0,
@@ -213,7 +246,8 @@ void AppContext::createGraphicsPipeline()
 		.padding3				   = 0
 	};
 
-
+	vertexShaderCompileOptions
+	fragmentShaderCompileOptions
 	m_shader0.create(m_gpudevice, m_shaderPaths[0]);
 	m_shader1.create(m_gpudevice, m_shaderPaths[1]);
 
@@ -239,7 +273,8 @@ void AppContext::createGraphicsPipeline()
 
 void AppContext::createComputePipeline()
 {
-	m_shader2.create(m_gpudevice, m_shaderPaths[2]);
+	static const shaderc::CompileOptions defaultGlslCompileOptions{}; /* TOOD SET */
+	m_shader2.create(m_gpudevice, m_shaderPaths[2], defaultGlslCompileOptions);
 	m_cmppipeline = m_shader2.getShaderHandle();
 
 	ifcrash(m_cmppipeline == nullptr);

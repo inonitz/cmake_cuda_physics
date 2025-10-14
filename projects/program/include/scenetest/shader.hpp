@@ -2,6 +2,7 @@
 #define __SCENE_TEST_SHADER_ABSTRACTION_DEFINITION_HEADER__
 #include <SDL3_shadercross/SDL_shadercross.h>
 #include <util2/type_trait.hpp>
+#include "scenetest/spirv.hpp"
 
 
 template<
@@ -13,6 +14,20 @@ private:
 	static constexpr auto shaderTypeIsCompute() -> bool {
 		return shaderStage == SDL_ShaderCross_ShaderStage::SDL_SHADERCROSS_SHADERSTAGE_COMPUTE;
 	} 
+
+	static constexpr auto getShaderc_ShaderKind() -> shaderc_shader_kind {
+		return (shaderStage == SDL_ShaderCross_ShaderStage::SDL_SHADERCROSS_SHADERSTAGE_COMPUTE) ?
+			shaderc_shader_kind::shaderc_glsl_compute_shader
+			:
+			(shaderStage == SDL_ShaderCross_ShaderStage::SDL_SHADERCROSS_SHADERSTAGE_VERTEX) ? 
+				shaderc_shader_kind::shaderc_glsl_vertex_shader
+				:
+				(shaderStage == SDL_ShaderCross_ShaderStage::SDL_SHADERCROSS_SHADERSTAGE_FRAGMENT) ? 
+					shaderc_shader_kind::shaderc_glsl_fragment_shader
+					:
+					shaderc_shader_kind::shaderc_glsl_default_callable_shader
+		;
+	}
 
 	using metadataType = typename util2::type_trait::conditional_operator<shaderTypeIsCompute(), 
 		SDL_ShaderCross_ComputePipelineMetadata, /* we can only create a compute pipeline, not a compute shader. so thats that */
@@ -34,8 +49,9 @@ public:
 
 
 	auto create(
-		SDL_GPUDevice* device, 
-		const char*    shaderfile
+		SDL_GPUDevice* 				   device, 
+		const char*    				   shaderfile,
+		shaderc::CompileOptions const& compilationFlags
 	) -> SDL_ShaderCross_SPIRV_Info*;
 
 	void destroy();
@@ -51,8 +67,10 @@ public:
 	
 private:
 	SDL_GPUDevice* m_device{nullptr};
+	GLSLShader*    m_spirvFile{nullptr};
 	metadataType*  m_reflectmeta{nullptr};
 	shaderType*    m_shader{nullptr};
+
 };
 
 

@@ -46,13 +46,16 @@ template <
     typename T,
     bool hasCreationOwnerShip>
 class UTIL2_API array_view {
-  public:
+public:
+	UTIL2_STATIC_ASSERT(sizeof(array_view) == 16, TemplatedArrayViewSizeEqualityCheck, 
+		"On the x86_64 platform / Any platform with an 8-Byte Pointer, array_view<T> must occupy 16 bytes in memory"
+	)
+
 	array_view() : m_buf{nullptr}, m_size{0} {
 	}
 
 	array_view(T* bufferaddress, u32 buffersize) : m_buf{bufferaddress},
-	                                               m_size{buffersize} {
-	}
+	                                               m_size{buffersize} {}
 
 	array_view(u32 creationsize) : m_buf{new T[creationsize]}, m_size{creationsize} {
 		UTIL2_STATIC_ASSERT(hasCreationOwnerShip == true, 
@@ -92,7 +95,7 @@ class UTIL2_API array_view {
             "util2::array_view<T> must have ownership on copy operation"
         );
 		if (otherview.m_size > m_size) {
-			delete[] m_buf;
+			delete[] m_buf; /* will work regardless if the pointer is null or not */
 			m_size = otherview.m_size;
             m_buf = new T[m_size];
 		}
@@ -152,7 +155,7 @@ class UTIL2_API array_view {
 	}
 
 
-  private:
+private:
 	T*  m_buf;
 	u32 m_size;
 	u32 m_reserved{DEFAULT32};
@@ -166,6 +169,8 @@ using UTIL2_API nonOwningArrayView = array_view<T, false>;
 
 
 } /* namespace util2 */
+
+
 
 
 #endif /* __UTIL2_DEFINITION_ARRAY_VIEW__ */

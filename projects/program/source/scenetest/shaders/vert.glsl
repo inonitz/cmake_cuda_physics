@@ -3,9 +3,12 @@ layout (location = 0) in vec3 vertexPosition;
 // layout (binding = 0)  in uniform sampler3D positionTex;
 
 
-uniform mat4 projection;
-uniform mat4 view;
-uniform mat4 model;
+layout(std140, set = 0, binding = 3) uniform MatrixData {
+    mat4x4 projection; 
+}; 
+layout(std140, set = 0, binding = 4) uniform MatrixData2 {
+    mat4x4 view; 
+}; 
 
 
 ivec3 indexToTexelCoord3D(in ivec3 size, int index) {
@@ -29,7 +32,7 @@ void main()
     // ivec3 texelPos = indexToTexelCoord3D(ivec3(ku_gridSize), gl_InstanceID);
     // vec4  pos      = texelFetch(positionTex, texelPos, 0);
     // gl_Position = projection * view * model * vec4(vertexPosition + pos.xyz, 1);
-    gl_Position = projection * view * model * vec4(vertexPosition, 1);
+    gl_Position = projection * view * vec4(vertexPosition, 1);
     return;
 
 

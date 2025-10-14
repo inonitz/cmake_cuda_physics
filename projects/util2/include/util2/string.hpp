@@ -54,7 +54,7 @@ namespace util2 {
 __force_inline inline u64 readtsc() { return util2_readtsc(); } 
 
 
-__force_inline inline u64 __count_trailing_zeros(u64 ll)
+__force_inline inline u64 count_trailing_zeros(u64 ll)
 {
 #if defined(__cplusplus) && __cplusplus > 202002L
 #include <bit>

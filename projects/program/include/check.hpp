@@ -26,4 +26,16 @@
 #endif
 
 
+#ifndef SDLSTATUSFMT
+#	define SDLSTATUSFMT(condition, msg, ...) \
+		if ( unlikely( !!(condition) ) ) {                      \
+			SDL_Log("[SDL_ERROR] -> '%s'\n[SDL_ERROR] -> \b", SDL_GetError(), msg); \
+			SDL_Log(msg, __VA_ARGS__); \
+		}
+#else
+#	define SDLSTATUSFMT(condition, msg) do {} while(0);
+#endif
+
+
+
 #endif /* __SDL3_CORRECTNESS_CHECK_DEFINITION_HEADER__ */

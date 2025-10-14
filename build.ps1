@@ -19,6 +19,28 @@ param(
 $ErrorActionPreference = "Stop"
 
 
+# From: https://stackoverflow.com/a/12605755
+function Force-Resolve-Path {
+    <#
+        .SYNOPSIS
+        Calls Resolve-Path but works for files that don't exist.
+        .REMARKS
+        From http://devhawk.net/blog/2010/1/22/fixing-powershells-busted-resolve-path-cmdlet
+    #>
+    param (
+        [string] $FileName
+    )
+
+    $FileName = Resolve-Path $FileName -ErrorAction SilentlyContinue `
+                                            -ErrorVariable _frperror
+    if (-not($FileName)) {
+        $FileName = $_frperror[0].TargetObject
+    }
+
+    return $FileName
+}
+
+
 function Show-Help {
     Write-Host "Usage: .\build_script.ps1 -BuildType <BuildType> -LinkType <LinkType> -Action <Action> [-DryRun] [-Help]"
     Write-Host ""
@@ -55,7 +77,10 @@ $CMAKE_ARGLIST = @(
     "-DCMAKE_COLOR_DIAGNOSTICS=ON"
     "-DSDLSHADERCROSS_DXC=OFF"
     "-DSDL3_DIR=dependencies/SDL3"
-    "-DCMAKE_PREFIX_PATH=${env:VULKAN_SDK_PATH};${env:VULKAN_SDK_PATH}\Lib\cmake" # This is the problem, cmake doesn't find the /cmake dir
+    "-Dspirv_cross_c_shared_DIR=${env:VULKAN_SDK}\Lib\spirv_cross_c_shared\cmake" # << This is what fixed it for me. The Problem: https://vulkan.lunarg.com/issue/view/66fef9a807baa3c85a20d08a
+    "-Dshaderc_combined_DIR=${env:VULKAN_SDK}\Lib\cmake"
+
+    # "-DCMAKE_PREFIX_PATH=${env:VULKAN_SDK_PATH};${env:VULKAN_SDK_PATH}\Lib\cmake" # This is the problem, cmake doesn't find the /cmake dir
 )
 
 
@@ -201,8 +226,8 @@ if ($BUILD_BINARIES_FLAG) {
     }
 
     if (Test-Path "compile_commands.json") {
-        $target = Resolve-Path "..\..\compile_commands.json"
-        RunOrEcho "Copy compile_commands.json to build root" {
+        $target = Force-Resolve-Path "..\..\compile_commands.json"
+        RunOrEcho -Description "Copy compile_commands.json to build root" -Codeblock {
             Copy-Item "compile_commands.json" $target -Force
         }
     }

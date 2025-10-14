@@ -23,7 +23,7 @@ bool_t util2_load_file(
 	fsize = ftell(to_open);
 	fseek(to_open, 0, SEEK_SET);
 
-	if(*size < fsize || out == NULL) {
+	if(out == NULL || size == NULL || *size < fsize) {
 		/* A buffer wasn't allocated OR the size of the buffer is too small. */
 		*size = fsize;
 		fclose(to_open);

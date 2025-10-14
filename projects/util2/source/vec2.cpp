@@ -23,7 +23,9 @@ template<typename T> bool approximately_zero(T v) {
 template float radians<float>(float v);
 template float degrees<float>(float v);
 template bool  approximately_zero<float>(float v);
-
+template double radians<double>(double v);
+template double degrees<double>(double v);
+template bool   approximately_zero<double>(double v);
 
 thread_local static Vector<float, 2 > temporaryBufferVec2f{};
 thread_local static Vector<float, 3 > temporaryBufferVec3f{};

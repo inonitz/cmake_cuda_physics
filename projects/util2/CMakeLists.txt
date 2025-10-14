@@ -1,5 +1,4 @@
 set(SOURCES
-    source/aligned_malloc.cpp
     source/C/aligned_malloc.c
     source/C/buffer.c
     source/C/file.c
@@ -7,8 +6,12 @@ set(SOURCES
     source/C/image2.c
     source/C/marker4.c
     source/C/print.c
+    source/C/sleep.c
     source/C/stb_image.c
     source/C/thread_sleep.c
+    source/C/tinycthread.c
+    
+    source/aligned_malloc.cpp
     source/file.cpp
     source/ifcrash.cpp
     source/pool.cpp
@@ -17,9 +20,7 @@ set(SOURCES
     source/time.cpp
     source/vec2.cpp
 
-    include/util2/aligned_malloc.hpp
-    include/util2/array_view.hpp
-    include/util2/bufferptr.hpp
+
     include/util2/C/aligned_malloc.h
     include/util2/C/base_type.h
     include/util2/C/buffer.h
@@ -31,13 +32,19 @@ set(SOURCES
     include/util2/C/marker4.h
     include/util2/C/murmur64a.h
     include/util2/C/print.h
+    include/util2/C/sleep.h
     include/util2/C/static_assert.h
     include/util2/C/stb_image.h
     include/util2/C/string.h
     include/util2/C/thread_sleep.h
+    include/util2/C/tinycthread.h
     include/util2/C/util2_api.h
     include/util2/C/util2_extern.h
     include/util2/C/varg_count.h
+
+    include/util2/aligned_malloc.hpp
+    include/util2/array_view.hpp
+    include/util2/bufferptr.hpp
     include/util2/file.hpp
     include/util2/flat_hash.hpp
     include/util2/hash.hpp
@@ -53,13 +60,6 @@ set(SOURCES
 )
 
 
-# Didn't define debug/release/etc...
-if(NOT DEFINED CMAKE_BUILD_TYPE)
-    # set(cmake_build_type_undefined 1)
-    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "CMake build type" FORCE)
-endif()
-
-
 if(BUILD_SHARED_LIBS)
     add_library(util2 SHARED ${SOURCES})
     target_compile_definitions(util2 PUBLIC UTIL2_EXPORTS)
@@ -69,13 +69,51 @@ else()
 endif()
 
 
+if(DEFINED CMAKE_SYSTEM_NAME)
+    set(PLATFORM_SPECIFIC_FILES "")
+    set(PLATFORM_SPECIFIC_LINKING "")
+
+
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+        set(PLATFORM_SPECIFIC_FILES
+            include/util2/C/sleep/sleep_linux.h 
+            source/C/sleep/sleep_linux.c
+        )
+        set(PLATFORM_SPECIFIC_LINKING pthread)
+    endif()
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        set(PLATFORM_SPECIFIC_FILES
+            include/util2/C/sleep/sleep_osx.h 
+            source/C/sleep/sleep_osx.c
+        )
+        set(PLATFORM_SPECIFIC_LINKING pthread)
+    endif()
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+        set(PLATFORM_SPECIFIC_FILES
+            include/util2/C/sleep/sleep_win32.h 
+            source/C/sleep/sleep_win32.c
+        )
+    endif()
+
+
+    target_sources(util2 PRIVATE ${PLATFORM_SPECIFIC_FILES})
+    target_link_libraries(util2 PRIVATE ${PLATFORM_SPECIFIC_LINKING})
+else()
+    message(STATUS "\n
+        [util2] -> 
+            CMake Variable 'CMAKE_SYSTEM_NAME' Doesn't exist. 
+            If cross Compiling, make sure to define explicitly for your target platform.
+            !Cannot proceed with Build!"
+    )
+endif()
+
+
+
 # The minimum C/C++ versions required for the library
 target_compile_features(util2 PUBLIC cxx_std_17)
 target_compile_features(util2 PUBLIC c_std_11)
 
-
 target_include_directories(util2 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(util2 PRIVATE pthread)
 
 
 feature_summary(WHAT ENABLED_FEATURES

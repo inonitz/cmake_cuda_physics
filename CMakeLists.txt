@@ -8,8 +8,41 @@ project(
 set(EXECUTABLE_NAME ${PROJECT_NAME})
 
 
-find_package(Vulkan REQUIRED)
-# find_package(spirv_cross_c REQUIRED)
+# Vulkan Search
+if (DEFINED VULKAN_SDK_PATH)
+    set(Vulkan_INCLUDE_DIRS "${VULKAN_SDK_PATH}/Include") # 1.1 Make sure this include path is correct
+    set(Vulkan_LIBRARIES "${VULKAN_SDK_PATH}/Lib") # 1.2 Make sure lib path is correct
+    set(Vulkan_FOUND "True")
+else()
+    find_package(Vulkan REQUIRED COMPONENTS 
+        glslang 
+        shaderc_combined
+    )
+    message(STATUS "Found Vulkan: '$ENV{VULKAN_SDK}'")
+endif()
+if (NOT Vulkan_FOUND)
+    message(FATAL_ERROR "Could not find Vulkan library!")
+else()
+    message(STATUS "Using Vulkan Library at '${Vulkan_LIBRARIES}'")
+endif()
+
+
+# spirv_cross_c_shared - required for sdl_shadercross
+find_package(spirv_cross_c_shared CONFIG REQUIRED)
+if (spirv_cross_c_shared_FOUND)
+    message(STATUS "Found SPIRV-Cross C API!")
+else()
+    message(STATUS "Could not find SPIRV-Cross C API! :(")
+endif()
+
+
+# shaderc - required for runtime compilation of glsl code
+# find_package(shaderc_combined CONFIG REQUIRED)
+if (Vulkan_shaderc_combined_FOUND)
+    message(STATUS "Found Vulkan ShaderC API!")
+else()
+    message(STATUS "Could not find Vulkan ShaderC API! :(")
+endif()
 
 
 
@@ -20,13 +53,13 @@ function(UPDATE_SUBMODULES_ON_CMAKE_CONFIGURE SUBMODULE_CMAKE_TXT_PATH)
         # Update submodules as needed
         option(GIT_SUBMODULE "Check submodules during build" ON)
         if(GIT_SUBMODULE)
-            message(STATUS "Submodule update")
-            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive
+            message(STATUS "Submodule update") # see: https://stackoverflow.com/a/21195182
+            execute_process(COMMAND ${GIT_EXECUTABLE} submodule update --init --recursive --remote
                             WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
                             RESULT_VARIABLE GIT_SUBMOD_RESULT
             )
             if(NOT GIT_SUBMOD_RESULT EQUAL "0")
-                message(FATAL_ERROR "git submodule update --init --recursive failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
+                message(FATAL_ERROR "git submodule update --init --recursive --remote failed with ${GIT_SUBMOD_RESULT}, please checkout submodules")
             endif()
         endif()
     endif()
@@ -74,6 +107,13 @@ endif()
 # if(NOT DEFINED CMAKE_CUDA_STANDARD)
 #     set(CMAKE_CUDA_STANDARD 17)
 # endif()
+
+
+# default build type unless user defined
+if(NOT DEFINED CMAKE_BUILD_TYPE)
+    # set(cmake_build_type_undefined 1)
+    set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "CMake build type" FORCE)
+endif()
 
 
 if(NOT DEFINED CMAKE_PROJECT_DIRECTORY)

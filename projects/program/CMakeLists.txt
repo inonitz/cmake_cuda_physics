@@ -14,11 +14,11 @@ function(COMPILE_AND_COPY_SHADERS_TO_BINARY_DIRECTORY SHADER_FOLDER_PATH)
 endfunction()
 
 
-
-
 set(SOURCES
-    source/scenetest/demo_render_fps_cube2.cpp
+    source/scenetest/camera.cpp
     source/scenetest/context.cpp
+    source/scenetest/demo_render_fps_cube2.cpp
+    source/scenetest/input.cpp
     source/scenetest/shader.cpp
     source/scenetest/sphere.cpp
 
@@ -30,20 +30,24 @@ set(SOURCES
 
     # source/hellocuda.cu
     # include/hellocuda.hpp
-
+    include/scenetest/camera.hpp
     include/scenetest/context.hpp
+    include/scenetest/input.hpp
     include/scenetest/shader.hpp
     include/scenetest/sphere.hpp
-
+    
     include/colourmap_buf.hpp
+    include/check.hpp
 )
 
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include")
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE util2)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3_shadercross::SDL3_shadercross)
+target_link_libraries(${PROJECT_NAME} PRIVATE Vulkan::shaderc_combined)
+
 
 # The minimum C/C++ versions required for the library
 target_compile_features(${PROJECT_NAME} PUBLIC cxx_std_17)
@@ -51,10 +55,8 @@ target_compile_features(${PROJECT_NAME} PUBLIC c_std_11)
 
 
 if(MEASURE_PERFORMANCE_TIMEOUT)
-    target_compile_definitions(${PROJECT_NAME} PRIVATE MEASURE_PERFORMANCE_TIMEOUT_FLAG=1)
     target_compile_definitions(${PROJECT_NAME} PRIVATE MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS=25)
 else()
-    target_compile_definitions(${PROJECT_NAME} PRIVATE MEASURE_PERFORMANCE_TIMEOUT_FLAG=0)
     target_compile_definitions(${PROJECT_NAME} PRIVATE MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS=0)
 endif()
 

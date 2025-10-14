@@ -1,6 +1,4 @@
 #define SDL_MAIN_USE_CALLBACKS 1 /* use the callbacks instead of main() */
-#include <new>
-#include <cmath>
 #include <SDL3/SDL_main.h>
 #include <util2/C/macro.h>
 #include "check.hpp"
@@ -42,36 +40,29 @@ auto SDL_AppInit(void** appstate, int argc, char* argv[]) -> SDL_AppResult {
 	status = g_appctx->create(APP_DEBUG_MODE, k_windowWidth, k_windowHeight);
 	SDLCHECK(status, "Failure to Initialize global app Context\n");
 
+	*appstate = g_appctx;
+
 
 	return SDL_APP_CONTINUE;
 }
 
 
 auto SDL_AppEvent(void* appstate, SDL_Event* event) -> SDL_AppResult {
-	if (event->type == SDL_EVENT_QUIT) {
-		return SDL_APP_SUCCESS;
-	}
-	if (event->type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-		return SDL_APP_SUCCESS;
-	}
-
-
+	SDLCHECK(g_appctx->inputUpdate(appstate, event), "Failure in Input Update");
 	return SDL_APP_CONTINUE;
 }
 
 
 auto SDL_AppIterate(void* appstate) -> SDL_AppResult {
-	SDLCHECK(g_appctx->update(), "Failure in App Update");
+	SDLCHECK(g_appctx->renderUpdate(), "Failure in App Update");
 
-#if defined(MEASURE_PERFORMANCE_TIMEOUT_FLAG)
-#	if defined(MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS)
-#		if (MEASURE_PERFORMANCE_TIMEOUT_FLAG == 1)
-			if (g_appctx->getFrameCount() > MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS) {
-				return SDL_APP_SUCCESS;
-			}
-#		endif
-#	endif
-#endif
+
+	if constexpr (MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS > 0) {
+		if (g_appctx->getFrameCount() > MEASURE_PERFORMANCE_TIMEOUT_ITERATIONS) {
+			return SDL_APP_SUCCESS;
+		}
+	}
+	g_appctx->incrementTick();
 	return SDL_APP_CONTINUE;
 }
 
